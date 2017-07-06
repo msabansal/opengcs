@@ -162,12 +162,26 @@ func archivePath() error {
 		return InvalidParams
 	}
 
-	utils.LogMsg("archivePath(): Getting opts struct from stdin\n")
+    utils.LogMsg("archivePath(): Reading from stdin\n")
+    rawJSON, err := ioutil.ReadAll(os.Stdin)
+    if err != nil {
+        utils.LogMsg("archivePath(): failed to read stdin\n")
+        return err
+    }
+
+    utils.LogMsgf("archivePath(): Read %d bytes from stdin\n", len(rawJSON))
+    opts := &archive.TarOptions{}
+    if err := json.Unmarshal(rawJSON, opts); err != nil {
+        utils.LogMsgf("archirePath(): failed to unmarshal json: %s\n", err)
+        return err
+    }
+
+	/* utils.LogMsg("archivePath(): Getting opts struct from stdin\n")
 	opts, err := getTarOpts(os.Stdin)
 	if err != nil {
 		utils.LogMsgf("archivePath(): unmarshal failure: %s\n", err)
 		return err
-	}
+	}*/
 
 	utils.LogMsgf("archivePath(): Path=%s Tar=%+v\n", os.Args[2], opts)
 	r, err := archive.TarWithOptions(os.Args[2], opts)
