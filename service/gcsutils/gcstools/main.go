@@ -11,6 +11,7 @@ var commands = map[string]func(){
 	"vhd2tar":       vhd2tar_main,
 	"createSandbox": createSandbox_main,
 	"exportSandbox": exportSandbox_main,
+	"remotefs":      remotefs_main,
 }
 
 func main() {
