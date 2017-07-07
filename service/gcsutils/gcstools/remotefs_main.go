@@ -162,12 +162,18 @@ func archivePath() error {
 		return InvalidParams
 	}
 
+    file, err := os.Create("/tmp/archivePath.tmp")
+    defer file.Close()
+
     utils.LogMsg("archivePath(): Reading from stdin\n")
-    rawJSON, err := ioutil.ReadAll(os.Stdin)
+    _, err = io.Copy(file, os.Stdin)
     if err != nil {
         utils.LogMsg("archivePath(): failed to read stdin\n")
         return err
     }
+
+    file.Seek(0, 0)
+    rawJSON, _ := ioutil.ReadAll(file)
 
     utils.LogMsgf("archivePath(): Read %d bytes from stdin\n", len(rawJSON))
     opts := &archive.TarOptions{}
