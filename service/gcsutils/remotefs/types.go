@@ -34,3 +34,17 @@ func (f *FileInfo) Mode() os.FileMode  { return f.ModeVar }
 func (f *FileInfo) ModTime() time.Time { return time.Unix(0, f.ModTimeVar) }
 func (f *FileInfo) IsDir() bool        { return f.IsDirVar }
 func (f *FileInfo) Sys() interface{}   { return nil }
+
+// FileHeader is a header for remote *os.File operations for remotefs.OpenFile
+type FileHeader struct {
+	Cmd  uint32
+	Size uint64
+}
+
+const (
+	Read      uint32 = iota // Read request command
+	Write                   // Write request command
+	Close                   // Close request command
+	CmdOK                   // CmdOK is a response meaning request succeeded
+	CmdFailed               // CmdFailed is a response meaning request failed.
+)
