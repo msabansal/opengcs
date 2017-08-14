@@ -3,7 +3,6 @@ package mockcore
 
 import (
 	"github.com/Microsoft/opengcs/service/gcs/oslayer"
-	"github.com/Microsoft/opengcs/service/gcs/oslayer/mockos"
 	"github.com/Microsoft/opengcs/service/gcs/prot"
 	"github.com/Microsoft/opengcs/service/gcs/runtime"
 	"github.com/Microsoft/opengcs/service/gcs/stdio"
@@ -51,20 +50,6 @@ type ModifySettingsCall struct {
 	Request prot.ResourceModificationRequestResponse
 }
 
-// RegisterContainerExitHookCall captures the arguments of
-// RegisterContainerExitHook.
-type RegisterContainerExitHookCall struct {
-	ID       string
-	ExitHook func(oslayer.ProcessExitState)
-}
-
-// RegisterProcessExitHookCall captures the arguments of
-// RegisterProcessExitHook.
-type RegisterProcessExitHookCall struct {
-	Pid      int
-	ExitHook func(oslayer.ProcessExitState)
-}
-
 // ResizeConsoleCall captures the arguments of ResizeConsole
 type ResizeConsoleCall struct {
 	Pid    int
@@ -72,20 +57,30 @@ type ResizeConsoleCall struct {
 	Width  uint16
 }
 
+// WaitContainerCall captures the arguments of WaitContainer
+type WaitContainerCall struct {
+	ID string
+}
+
+// WaitProcessCall captures the arguments of WaitProcess
+type WaitProcessCall struct {
+	Pid int
+}
+
 // MockCore serves as an argument capture mechanism which implements the Core
 // interface. Arguments passed to one of its methods are stored to be queried
 // later.
 type MockCore struct {
-	LastCreateContainer           CreateContainerCall
-	LastExecProcess               ExecProcessCall
-	LastSignalContainer           SignalContainerCall
-	LastSignalProcess             SignalProcessCall
-	LastListProcesses             ListProcessesCall
-	LastRunExternalProcess        RunExternalProcessCall
-	LastModifySettings            ModifySettingsCall
-	LastRegisterContainerExitHook RegisterContainerExitHookCall
-	LastRegisterProcessExitHook   RegisterProcessExitHookCall
-	LastResizeConsole             ResizeConsoleCall
+	LastCreateContainer    CreateContainerCall
+	LastExecProcess        ExecProcessCall
+	LastSignalContainer    SignalContainerCall
+	LastSignalProcess      SignalProcessCall
+	LastListProcesses      ListProcessesCall
+	LastRunExternalProcess RunExternalProcessCall
+	LastModifySettings     ModifySettingsCall
+	LastResizeConsole      ResizeConsoleCall
+	LastWaitContainer      WaitContainerCall
+	LastWaitProcess        WaitProcessCall
 }
 
 // CreateContainer captures its arguments and returns a nil error.
@@ -156,26 +151,6 @@ func (c *MockCore) ModifySettings(id string, request prot.ResourceModificationRe
 	return nil
 }
 
-// RegisterContainerExitHook captures its arguments and returns a nil error.
-func (c *MockCore) RegisterContainerExitHook(id string, exitHook func(oslayer.ProcessExitState)) error {
-	c.LastRegisterContainerExitHook = RegisterContainerExitHookCall{
-		ID:       id,
-		ExitHook: exitHook,
-	}
-	return nil
-}
-
-// RegisterProcessExitHook captures its arguments, runs the given exit hook on
-// a process exit state with exit code 103, and returns a nil error.
-func (c *MockCore) RegisterProcessExitHook(pid int, exitHook func(oslayer.ProcessExitState)) error {
-	c.LastRegisterProcessExitHook = RegisterProcessExitHookCall{
-		Pid:      pid,
-		ExitHook: exitHook,
-	}
-	exitHook(mockos.NewProcessExitState(103))
-	return nil
-}
-
 // ResizeConsole captures its arguments and returns a nil error.
 func (c *MockCore) ResizeConsole(pid int, height, width uint16) error {
 	c.LastResizeConsole = ResizeConsoleCall{
@@ -185,4 +160,20 @@ func (c *MockCore) ResizeConsole(pid int, height, width uint16) error {
 	}
 
 	return nil
+}
+
+// WaitContainer captures its arguments and returns a nil error.
+func (c *MockCore) WaitContainer(id string) (int, error) {
+	c.LastWaitContainer = WaitContainerCall{
+		ID = id,
+	}
+	return -1, nil
+}
+
+// WaitProcess captures its arguments and returns a nil error.
+func (c *MockCore) WaitProcess(pid int) (int, error) {
+	c.LastWaitProcess = WaitProcessCall{
+		Pid = pid,
+	}
+	return -1, nil
 }
