@@ -40,10 +40,13 @@ func exportSandbox() error {
 	}
 
 	logrus.Infof("converted: Packing %s\n", absPath)
-	if _, err = libtar2vhd.VHDX2Tar(absPath, os.Stdout, options); err != nil {
+	size, err := libtar2vhd.VHDX2Tar(absPath, os.Stdout, options)
+	if err != nil {
 		logrus.Infof("failed to pack files: %s\n", err)
 		return err
 	}
+
+	logrus.Infof("Finished packing and now exiting. Got size %d", size)
 	return nil
 }
 
