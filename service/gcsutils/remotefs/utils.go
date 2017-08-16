@@ -120,6 +120,11 @@ func ReadTarOptions(r io.Reader) (*archive.TarOptions, error) {
 	if err := json.Unmarshal(rawJSON, &opts); err != nil {
 		return nil, err
 	}
+
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, size)
+	b = append(b, rawJSON...)
+	ioutil.WriteFile("/tmp/please-check-opts", b, 0644)
 	return &opts, nil
 }
 
