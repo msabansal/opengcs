@@ -98,6 +98,13 @@ func netnsConfig() error {
 		return fmt.Errorf("netlink.LinkByName(%s) failed: %v", *ifStr, err)
 	}
 
+	// User requested non-default MTU size
+	if a.EncapOverhead != 0 {
+		if err = netlink.LinkSetMTU(link, int(a.EncapOverhead)); err != nil {
+			return fmt.Errorf("netlink.LinkSetMTU(%#v, %d) failed: %v", link, a.EncapOverhead, err)
+		}
+	}
+
 	// Configure the interface
 	if a.NatEnabled {
 		metric := 1
