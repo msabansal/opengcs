@@ -142,6 +142,14 @@ func netnsConfig() error {
 		}
 	}
 
+	// Reduce MTU in case there is encap overhead
+	if a.EncapOverhead > 0 {
+		err = netlink.LinkSetMTU(link, link.Attrs().MTU-int(a.EncapOverhead))
+		if err != nil {
+			return err
+		}
+	}
+
 	// Add some debug logging
 	curNS, _ := netns.Get()
 	// Refresh link attributes/state
